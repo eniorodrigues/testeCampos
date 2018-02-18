@@ -44,195 +44,14 @@ namespace testeExcel
         Stream myStream = null;
         string nomeSheet;
         StringBuilder camposDataGrid = new StringBuilder();
+        public List<String> itemsDataGrid = new List<String>();
+        public Clientes clientes = new Clientes();
+        public Fornecedores fornecedores = new Fornecedores();
+
         private void button1_Click(object sender, EventArgs e)
         {
-
-            foreach (string element in filesAdionado)
-            {
-
-                MyApp = new Excel.Application();
-                MyApp.Workbooks.Add(caminho);
-                Workbook wb = MyApp.Workbooks.Add(caminho);
-                Worksheet ws = wb.Sheets[1];
-                MyApp.DisplayAlerts = false;
-                Excel.Application xlApp = new Excel.Application();
-                Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(caminho);
-                Excel.Worksheet xlWorksheet = xlWorkbook.Sheets[1]; // assume it is the first sheet
-                int columnCount = xlWorksheet.UsedRange.Columns.Count;
-                List<string> columnNames = new List<string>();
-                 
-                for (int c = 1; c < columnCount; c++)
-                {
-                    if (xlWorksheet.Cells[1, c].Value2 != null)
-                    {
-                        string columnName = xlWorksheet.Columns[c].Address;
-                        Regex reg = new Regex(@"(\$)(\w*):");
-                        if (reg.IsMatch(columnName))
-                        {
-                            Match match = reg.Match(columnName);
-                            columnNames.Add(match.Groups[2].Value);
-
-                            if (xlWorksheet.Cells[1, c].Value2.Contains("digo"))
-                            {
-                                ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].NumberFormat = "@";
-                            }
-                            if (xlWorksheet.Cells[1, c].Value2.Contains("CNPJ"))
-                            {
-                                ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].EntireColumn.NumberFormat = "General";
-                            }
-                            if (xlWorksheet.Cells[1, c].Value2.Contains("data"))
-                            {
-                                ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].Replace(".", "/");
-                            }
-
-                        }
-                    }
-                }
-                xlApp.Quit();
-
-                //MyApp.Range["A:A"].NumberFormat = "@";
-                //MyApp.Range["B:B"].NumberFormat = "@";
-
-                wb.SaveAs(directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx");
-                wb.Close();
-
-                SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
-                string sqlConnectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
-
-                for (int i = 1; i <= MyApp.Workbooks.Count; i++)
-                {
-                    for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
-                    {
-                        nomeSheet = MyApp.Workbooks[1].Sheets[1].Name.ToString();
-                    }
-                }
-
-                SqlCommand cmdColuna = conn.CreateCommand();
-
-                cmdColuna.CommandText =
-                  "IF OBJECT_ID('dbo.clientes', 'U') IS NOT NULL " +
-                      "DROP TABLE dbo.clientes; " +
-                        "CREATE TABLE [dbo].[Clientes](" +
-                            "[Cli_ID] [varchar](70) NULL," +
-                            "[Cli_Nome] [varchar](255) NULL," +
-                            "[Cli_Pss_ID] [int] NULL," +
-                            "[Cli_Vinc] [varchar](1) NULL," +
-                            "[Cli_Vinc_DT_Ini] [datetime] NULL," +
-                            "[Cli_Vinc_DT_Fim] [datetime] NULL," +
-                            "[Cli_CNPJ] [varchar](40) NULL," +
-                            "[Cli_Vinc_Justific] [varchar](2) NULL," +
-                            "[Cli_Paraiso_Fiscal] [varchar](1) NULL CONSTRAINT [DF_Clientes_Cli_Paraiso_Fiscal]  DEFAULT ('N')," +
-                            "[Arq_Origem_ID] [int] NULL," +
-                            "[ID] [int] IDENTITY(1,1) NOT NULL" +
-                        ") ON [PRIMARY]";
-
-                SqlTransaction trA = null;
-
-                conn.Open();
-                trA = conn.BeginTransaction();
-                cmdColuna.Transaction = trA;
-                cmdColuna.ExecuteNonQuery();
-                trA.Commit();
-                conn.Close();
-
-                excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx; Extended Properties=Excel 12.0;";
-
-                //for (int i = 1; i <= MyApp.Workbooks.Count; i++)
-                //{
-                //    for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
-                //    {
-
-                        using (OleDbConnection connection = new OleDbConnection(excelConnectionString))
-                        {
-
-                            StringBuilder comandoExcel = new StringBuilder();
-
-                            for (int h = 0; h < colunas.Count; h++)
-                            {
-                                if (h == colunas.Count - 1)
-                                {
-                                    comandoExcel.Append("[" + Convert.ToString(colunas[h]).Replace(".", "#") + "] ");
-                                }
-                                else
-                                {
-                                    comandoExcel.Append("[" + Convert.ToString(colunas[h]).Replace(".", "#") + "], ");
-                                }
-                            }
-
-                            //string sheet = MyApp.Workbooks[i].Worksheets[j].name;
-                            string arquivo = element;
-                            string campos = Convert.ToString(comandoExcel);
-
-                            //List<string> items = new List<string>();
-                            //foreach (DataGridViewRow dr in dataGridView1.Rows)
-                            //{
-                            //    string item = dr.Cells[1].ToString();
-                            //    foreach (DataGridViewCell dc in dr.Cells)
-                            //    {
-                            //        items.Add(item);
-                            //        MessageBox.Show(item.ToString());
-                            //    }
-                            //}
-
-                            StringBuilder camposExcel = new StringBuilder();
-                            for (int f = 0; f < dataGridView1.Rows.Count -1; f++)
-                            {
-        
-                                    if (f == colunas.Count - 1)
-                                    {
-                                    camposExcel.Append("[" + Convert.ToString(colunas[f]).Replace(".", "#") + "] ");
-                                    }
-                                    else
-                                    {
-                                    camposExcel.Append("[" + Convert.ToString(colunas[f]).Replace(".", "#") + "], ");
-                                    }
-                            }
-
-                           // MessageBox.Show(camposExcel.ToString());
-
-
-                            OleDbCommand command = new OleDbCommand
-                            ("Select "+ camposExcel + "  FROM [clientes$]", connection);
-
-                            connection.Open();
-
-                            OleDbDataReader dReader = command.ExecuteReader();
-
-                            using (SqlBulkCopy sqlBulk = new SqlBulkCopy(sqlConnectionString))
-                            {
-                                sqlBulk.DestinationTableName = "Clientes";
-                                sqlBulk.WriteToServer(dReader);
-                            }
-                             
-                    SqlCommand cmdCopPedido = conn.CreateCommand();
-                    cmdCopPedido.CommandText =
-                        @"INSERT INTO D_CLIENTES (CLI_ID, CLI_NOME, CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim], [Cli_CNPJ], Lin_Origem_id)
-                        SELECT CLI_ID, max(CLI_NOME), CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim], max([Cli_CNPJ]), max(id)
-                        FROM clientes
-                        where cli_id is not null and cli_vinc is not null
-                        GROUP BY CLI_ID, CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim]";
-                    SqlTransaction tr = null;
-                    try
-                    {
-                        conn.Open();
-                        tr = conn.BeginTransaction();
-                        cmdCopPedido.Transaction = tr;
-                        cmdCopPedido.ExecuteNonQuery();
-                        tr.Commit();
-                        label1.Text = "Tabela clientes copiada ";
-                    }
-                    catch (Exception ex)
-                    {
-                        tr.Rollback();
-                        MessageBox.Show(ex.Message);
-                    }
-                    finally
-                    {
-                        conn.Close();
-                    }
-
-                }
-            }
+          //  clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            fornecedores.geraFornecedores(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
         }
 
         private void buttonAbrir_Click(object sender, EventArgs e)
@@ -253,19 +72,15 @@ namespace testeExcel
                     {
                         using (myStream)
                         {
-
                             caminho = openFileDialog1.FileName;
                             directoryPath = Path.GetDirectoryName(openFileDialog1.FileName);
                             files = (openFileDialog1.SafeFileNames);
-
                             foreach (string file in files)
                             {
                                 filesAdionado.Add(file);
                                 listBox1.Items.Add(file);
                             }
-
                             carregaLinhas();
-
                         }
                     }
                 }
@@ -306,29 +121,13 @@ namespace testeExcel
             MyApp.Workbooks.Add("");
             MyApp.Workbooks.Add(caminho);
             SqlTransaction trAx = null;
+
+
+                for (int i = 1; i <= MyApp.Workbooks[2].Worksheets.Count; i++)
+                {
+                    comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
+                }
              
-           // MessageBox.Show(MyApp.Workbooks[2].Worksheets.Count.ToString());
-
-            if(MyApp.Workbooks[2].Worksheets.Count == 1)
-            {
-                for (int i = 0; i < MyApp.Workbooks[2].Worksheets.Count; i++)
-                {
-                    i++;
-                    comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < MyApp.Workbooks[2].Worksheets.Count; i++)
-                {
-                    comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
-                }
-            }
-
-       
-
-
-
             for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[1].UsedRange.Columns.Count; k++)
             {
                 if (Convert.ToString((MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2.ToString()) != "")
@@ -346,22 +145,35 @@ namespace testeExcel
                     conn.Close();
                 }
             }
-
-
         }
-
-
-
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
+
+            SqlCommand cmdCampos = conn.CreateCommand();
+
+            cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
+                  DROP TABLE dbo.[campos]
+                 CREATE TABLE [dbo].[campos](
+	                                [campo_excel] [varchar](70) NULL,
+	                                [campo_sql] [varchar](70) NULL,
+                                    [tipo] [varchar](70) NULL,
+                                    [tabela] [varchar](70) NULL)";
+
+            SqlTransaction trA = null;
+
+            conn.Open();
+            trA = conn.BeginTransaction();
+            cmdCampos.Transaction = trA;
+            cmdCampos.ExecuteNonQuery();
+            trA.Commit();
+            conn.Close();
 
         }
 
         private void dataGridView2_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -370,9 +182,9 @@ namespace testeExcel
 
             string connectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
 
-            string sql = "select ordem, campo_descr as Campos_SQL, min(campo_excel) as Campos_Excel " +
+            string sql = "select campo_descr as Campos_SQL, min(campo_excel) as Campos_Excel " +
                          "from I_MAP a left join campos on campo_descr like '%' + campo_excel + '%' " +
-                         "where a.tabela = 'd_clientes' "+
+                         "where a.tabela = '" + comboBox1.SelectedItem.ToString() + "' "+
                           "group by CAMPO_DESCR, ordem " +
                           "order by ordem ";
 
@@ -384,16 +196,8 @@ namespace testeExcel
             connection.Close();
             dataGridView1.DataSource = ds;
             dataGridView1.DataMember = "campos";
-            dataGridView1.Columns.Add("Campos", "Campos");
-        }
 
-        //private void button2_Click(object sender, EventArgs e)
-        //{
-        //    //dataGridView1.DataSource = null;
-        //    //System.Data.DataTable table = ConvertListToDataTable(colunas);
-        //    //dataGridView2.DataSource = table;
-        //    //label5.Text = comboBox2.SelectedItem.ToString();
-        //}
+        }
 
         static System.Data.DataTable ConvertListToDataTable(List<string> list)
         {
@@ -440,12 +244,9 @@ namespace testeExcel
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // dataGridView1.DataSource = null;
-            System.Data.DataTable table = ConvertListToDataTable(colunas);
-            dataGridView2.DataSource = table;
-            label5.Text = comboBox2.SelectedItem.ToString();
-
+          
             colunas.Clear();
+ 
             for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].UsedRange.Columns.Count; k++)
             {
                 if (Convert.ToString((MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].Cells[1, k].Value2.ToString()) != "")
@@ -453,18 +254,24 @@ namespace testeExcel
                     string coluna = Convert.ToString(MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].Cells[1, k].Value2);
                     colunas.Add(coluna);
                     colunasCreate.Add(coluna.Trim());
-
-                    //cmdCampos.CommandText = "INSERT INTO CAMPOS (CAMPO_EXCEL) VALUES ('" + coluna + "');";
-                    //conn.Open();
-                    //trAx = conn.BeginTransaction();
-                    //cmdCampos.Transaction = trAx;
-                    //cmdCampos.ExecuteNonQuery();
-                    //trAx.Commit();
-                    //conn.Close();
                 }
             }
 
-           
+            System.Data.DataTable table = ConvertListToDataTable(colunas);
+            dataGridView2.DataSource = table;
+            label5.Text = comboBox2.SelectedItem.ToString();
+
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+         
+
         }
     }
 

@@ -80,6 +80,7 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(275, 17);
             this.listBox1.TabIndex = 10;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -94,7 +95,21 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
-            "Tabela 1 - Cadastro de Clientes - D_Clientes"});
+            "D_Clientes",
+            "D_Compras",
+            "D_CPL",
+            "D_Custo_Medio",
+            "D_Divisao",
+            "D_Equivalencia",
+            "D_Fornecedores",
+            "D_Insumo_Produto",
+            "D_Inventario_Carga",
+            "D_PCI_PECEX",
+            "D_PIC",
+            "D_Produtos",
+            "D_PVA_PVV",
+            "D_Relacao_Carga",
+            "D_Vendas_Itens"});
             this.comboBox1.Location = new System.Drawing.Point(21, 115);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(275, 21);
@@ -122,10 +137,16 @@
             // dataGridView1
             // 
             this.dataGridView1.AllowDrop = true;
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToResizeRows = false;
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(21, 205);
+            this.dataGridView1.Location = new System.Drawing.Point(62, 205);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.ShowEditingIcon = false;
             this.dataGridView1.Size = new System.Drawing.Size(275, 178);
             this.dataGridView1.TabIndex = 21;
             this.dataGridView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridView1_DragDrop_1);
