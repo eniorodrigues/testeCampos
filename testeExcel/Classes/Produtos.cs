@@ -21,9 +21,9 @@ using System.Text.RegularExpressions;
 
 namespace testeCampos
 {
-   public class Clientes
+   public class Produtos
     {
-        public void geraCliente(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1)
+        public void geraProdutos(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1)
         {
 
             foreach (string element in filesAdionado)
@@ -87,21 +87,17 @@ namespace testeCampos
                 SqlCommand cmdColuna = conn.CreateCommand();
 
                 cmdColuna.CommandText =
-                  "IF OBJECT_ID('dbo.clientes', 'U') IS NOT NULL " +
-                      "DROP TABLE dbo.clientes; " +
-                        "CREATE TABLE [dbo].[Clientes](" +
-                            "[Cli_ID] [varchar](70) NULL," +
-                            "[Cli_Nome] [varchar](255) NULL," +
-                            "[Cli_Pss_ID] [int] NULL," +
-                            "[Cli_Vinc] [varchar](1) NULL," +
-                            "[Cli_Vinc_DT_Ini] [datetime] NULL," +
-                            "[Cli_Vinc_DT_Fim] [datetime] NULL," +
-                            "[Cli_CNPJ] [varchar](40) NULL," +
-                            "[Cli_Vinc_Justific] [varchar](2) NULL," +
-                            "[Cli_Paraiso_Fiscal] [varchar](1) NULL CONSTRAINT [DF_Clientes_Cli_Paraiso_Fiscal]  DEFAULT ('N')," +
-                            "[Arq_Origem_ID] [int] NULL," +
-                            "[ID] [int] IDENTITY(1,1) NOT NULL" +
-                        ") ON [PRIMARY]";
+                  "IF OBJECT_ID('dbo.produtos', 'U') IS NOT NULL " +
+                      "DROP TABLE dbo.produtos; " +
+                        "CREATE TABLE[dbo].[produtos](" +
+                        "[Pro_ID][varchar](70) NULL," +
+                        "[Pro_Descricao] [varchar] (255) NULL," +
+	                    "[Pro_Und_ID] [int] NULL," +
+	                    "[Pro_NCM] [varchar] (8) NULL," +
+	                    "[Pro_Margem] [int] NULL," +
+	                    "[Pro_Perc_Quebras_Perdas] [numeric] (24, 12) NULL, " +
+                        "[id] [int] IDENTITY(1,1) NOT NULL, " +
+	                    "[Arq_Origem_ID] [int] NULL)"; 
 
                 SqlTransaction trA = null;
 
@@ -136,26 +132,27 @@ namespace testeCampos
 
                     for (int a = 0; a < dataGridView1.Rows.Count; a++)
                     {
-                        itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        if(dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                        {
+                            itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        }
                     }
 
                     StringBuilder camposExcel = new StringBuilder();
-                    for (int f = 0; f < dataGridView1.Rows.Count; f++)
+                    for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
-                        if (f == itemsDataGrid.Count - 1)
-                        {
-                            camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
-                        }
-                        else
-                        {
-                            camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
-                        }
+                            if (f == itemsDataGrid.Count - 1)
+                            {
+                                camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                            }
+                            else
+                            {
+                                camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
+                            }
                     }
 
-                    MessageBox.Show(camposExcel.ToString());
-
                     OleDbCommand command = new OleDbCommand
-                    ("Select " + camposExcel + "  FROM [clientes$]", connection);
+                    ("Select " + camposExcel + "  FROM [Produtos$]", connection);
 
                     connection.Open();
 
@@ -163,17 +160,17 @@ namespace testeCampos
 
                     using (SqlBulkCopy sqlBulk = new SqlBulkCopy(sqlConnectionString))
                     {
-                        sqlBulk.DestinationTableName = "Clientes";
+                        sqlBulk.DestinationTableName = "Produtos";
                         sqlBulk.WriteToServer(dReader);
                     }
 
                     SqlCommand cmdCopPedido = conn.CreateCommand();
                     cmdCopPedido.CommandText =
-                        @"INSERT INTO D_CLIENTES (CLI_ID, CLI_NOME, CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim], [Cli_CNPJ], Lin_Origem_id)
-                        SELECT CLI_ID, max(CLI_NOME), CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim], max([Cli_CNPJ]), max(id)
-                        FROM clientes
-                        where cli_id is not null and cli_vinc is not null
-                        GROUP BY CLI_ID, CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim]";
+                        @"INSERT INTO D_PRODUTOS (PRO_ID, Pro_Descricao, Pro_Und_ID, Pro_NCM, Pro_Margem,  Lin_Origem_ID)
+                        SELECT PRO_ID, MAX(Pro_Descricao), max(Pro_Und_ID), MAX(Pro_NCM), MAX(Pro_Margem), max(id)
+                        FROM produtos
+                        WHERE PRO_ID is not null and Pro_Descricao is not null
+                        GROUP BY  PRO_ID ";
                     SqlTransaction tr = null;
 
                     try
@@ -183,7 +180,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela clientes copiada ");
+                        MessageBox.Show("Tabela produtos copiada ");
                     }
                     catch (Exception ex)
                     {

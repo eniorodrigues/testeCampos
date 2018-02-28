@@ -47,11 +47,22 @@ namespace testeExcel
         public List<String> itemsDataGrid = new List<String>();
         public Clientes clientes = new Clientes();
         public Fornecedores fornecedores = new Fornecedores();
+        public Produtos produtos = new Produtos();
 
         private void button1_Click(object sender, EventArgs e)
         {
-          //  clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
-            fornecedores.geraFornecedores(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            if(comboBox1.SelectedItem.ToString() == "D_Clientes")
+            {
+                clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            }
+            if(comboBox1.SelectedItem.ToString() == "D_Fornecedores")
+            {
+                fornecedores.geraFornecedores(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            }
+            if(comboBox1.SelectedItem.ToString() == "D_Produtos")
+            {
+                produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            }
         }
 
         private void buttonAbrir_Click(object sender, EventArgs e)
@@ -169,6 +180,7 @@ namespace testeExcel
             cmdCampos.ExecuteNonQuery();
             trA.Commit();
             conn.Close();
+          
 
         }
 
@@ -196,7 +208,6 @@ namespace testeExcel
             connection.Close();
             dataGridView1.DataSource = ds;
             dataGridView1.DataMember = "campos";
-
         }
 
         static System.Data.DataTable ConvertListToDataTable(List<string> list)
@@ -270,7 +281,6 @@ namespace testeExcel
 
         private void button2_Click(object sender, EventArgs e)
         {
-         
 
         }
     }

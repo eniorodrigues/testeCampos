@@ -136,11 +136,14 @@ namespace testeCampos
 
                     for (int a = 0; a < dataGridView1.Rows.Count; a++)
                     {
-                        itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                        {
+                            itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        }
                     }
 
                     StringBuilder camposExcel = new StringBuilder();
-                    for (int f = 0; f < dataGridView1.Rows.Count; f++)
+                    for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
                         if (f == itemsDataGrid.Count - 1)
                         {
@@ -151,8 +154,6 @@ namespace testeCampos
                             camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                         }
                     }
-
-                    MessageBox.Show(camposExcel.ToString());
 
                     OleDbCommand command = new OleDbCommand
                     ("Select " + camposExcel + "  FROM [fornecedores$]", connection);
