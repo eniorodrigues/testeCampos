@@ -48,6 +48,7 @@ namespace testeExcel
         public Clientes clientes = new Clientes();
         public Fornecedores fornecedores = new Fornecedores();
         public Produtos produtos = new Produtos();
+        public Inventario inventario = new Inventario();
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -62,6 +63,10 @@ namespace testeExcel
             if(comboBox1.SelectedItem.ToString() == "D_Produtos")
             {
                 produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
+            {
+                inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
             }
         }
 
@@ -112,9 +117,7 @@ namespace testeExcel
                   DROP TABLE dbo.[campos]
                  CREATE TABLE [dbo].[campos](
 	                                [campo_excel] [varchar](70) NULL,
-	                                [campo_sql] [varchar](70) NULL,
-                                    [tipo] [varchar](70) NULL,
-                                    [tabela] [varchar](70) NULL)";
+	                                [campo_sql] [varchar](70) NULL)";
 
             SqlTransaction trA = null;
 
@@ -134,28 +137,28 @@ namespace testeExcel
             SqlTransaction trAx = null;
 
 
-                for (int i = 1; i <= MyApp.Workbooks[2].Worksheets.Count; i++)
-                {
-                    comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
-                }
-             
-            for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[1].UsedRange.Columns.Count; k++)
+            for (int i = 1; i <= MyApp.Workbooks[2].Worksheets.Count; i++)
             {
-                if (Convert.ToString((MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2.ToString()) != "")
-                {
-                    string coluna = Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2);
-                    colunas.Add(coluna);
-                    colunasCreate.Add(coluna.Trim());
-
-                    cmdCampos.CommandText = "INSERT INTO CAMPOS (CAMPO_EXCEL) VALUES ('" + coluna + "');";
-                    conn.Open();
-                    trAx = conn.BeginTransaction();
-                    cmdCampos.Transaction = trAx;
-                    cmdCampos.ExecuteNonQuery();
-                    trAx.Commit();
-                    conn.Close();
-                }
+                comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
             }
+
+            //for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[1].UsedRange.Columns.Count; k++)
+            //{
+            //    if (Convert.ToString((MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2.ToString()) != "")
+            //    {
+            //        string coluna = Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2);
+            //        colunas.Add(coluna);
+            //        colunasCreate.Add(coluna.Trim());
+
+            //        cmdCampos.CommandText = "INSERT INTO CAMPOS (CAMPO_EXCEL) VALUES ('" + coluna + "')";
+            //        conn.Open();
+            //        trAx = conn.BeginTransaction();
+            //        cmdCampos.Transaction = trAx;
+            //        cmdCampos.ExecuteNonQuery();
+            //        trAx.Commit();
+            //        conn.Close();
+            //    }
+            //}
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -168,9 +171,7 @@ namespace testeExcel
                   DROP TABLE dbo.[campos]
                  CREATE TABLE [dbo].[campos](
 	                                [campo_excel] [varchar](70) NULL,
-	                                [campo_sql] [varchar](70) NULL,
-                                    [tipo] [varchar](70) NULL,
-                                    [tabela] [varchar](70) NULL)";
+	                                [campo_sql] [varchar](70) NULL)";
 
             SqlTransaction trA = null;
 
@@ -180,7 +181,6 @@ namespace testeExcel
             cmdCampos.ExecuteNonQuery();
             trA.Commit();
             conn.Close();
-          
 
         }
 
@@ -194,11 +194,11 @@ namespace testeExcel
 
             string connectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
 
-            string sql = "select campo_descr as Campos_SQL, min(campo_excel) as Campos_Excel " +
-                         "from I_MAP a left join campos on campo_descr like '%' + campo_excel + '%' " +
-                         "where a.tabela = '" + comboBox1.SelectedItem.ToString() + "' "+
-                          "group by CAMPO_DESCR, ordem " +
-                          "order by ordem ";
+            string sql = "SELECT c.name as Campo_SQL , '' as Campo_Excel " +
+                        "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id "+
+                        "LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id "+
+                        "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
+                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "')";
 
             SqlConnection connection = new SqlConnection(connectionString);
             SqlDataAdapter dataadapter = new SqlDataAdapter(sql, connection);
@@ -212,17 +212,14 @@ namespace testeExcel
 
         static System.Data.DataTable ConvertListToDataTable(List<string> list)
         {
-            // New table.
             System.Data.DataTable table = new System.Data.DataTable();
 
-            // Add columns.
             for (int i = 0; i < 1; i++)
             {
                 table.Columns.Add();
                 table.Columns[0].ColumnName = "Campos Excel";
             }
 
-            // Add rows.
             foreach (var array in list)
             {
                 table.Rows.Add(array);

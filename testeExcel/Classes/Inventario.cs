@@ -76,41 +76,15 @@ namespace testeCampos
                 SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
                 string sqlConnectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
 
-                for (int i = 1; i <= MyApp.Workbooks.Count; i++)
-                {
-                    for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
-                    {
-                        nomeSheet = MyApp.Workbooks[1].Sheets[1].Name.ToString();
-                    }
-                }
+                //for (int i = 1; i <= MyApp.Workbooks.Count; i++)
+                //{
+                //    for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
+                //    {
+                //        nomeSheet = MyApp.Workbooks[1].Sheets[1].Name.ToString();
+                //    }
+                //}
 
-                SqlCommand cmdColuna = conn.CreateCommand();
 
-                cmdColuna.CommandText =
-                  "IF OBJECT_ID('dbo.Inventario_Carga', 'U') IS NOT NULL " +
-                      "DROP TABLE dbo.Inventario_Carga; " +
-                        "CREATE TABLE [dbo].[Inventario_Carga](" +
-                            "[Inv_Pro_ID] [varchar](70) NULL," +
-                            "[Inv_Data] [datetime] NULL," +
-                            "[Inv_CNPJ] [varchar](20) NULL," +
-                            "[Inv_Qtde] [numeric](27, 12) NULL," +
-                            "[Inv_Valor] [numeric](27, 12) NULL," +
-                            "[Inv_Tipo] [varchar](1) NULL," +
-                            "[Inv_Und_Id] [int] NULL," +
-                            "[Inv_Div_Id] [varchar](70) NULL," +
-                            "[Inv_Local_Negocio] [varchar](70) NULL," +
-                            "[Arq_Origem_ID] [int] NULL," +
-                            "[ID] [int] IDENTITY(1,1) NOT NULL" +
-                        ") ON [PRIMARY]";
-
-                SqlTransaction trA = null;
-
-                conn.Open();
-                trA = conn.BeginTransaction();
-                cmdColuna.Transaction = trA;
-                cmdColuna.ExecuteNonQuery();
-                trA.Commit();
-                conn.Close();
 
                 excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx; Extended Properties=Excel 12.0;";
 
@@ -136,6 +110,41 @@ namespace testeCampos
 
                     for (int a = 0; a < dataGridView1.Rows.Count; a++)
                     {
+                        if (dataGridView1.Rows[a].Cells[0].Value.ToString() != "")
+                        {
+                            itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        }
+                    }
+
+                    StringBuilder camposTabela = new StringBuilder();
+                    for (int f = 0; f < itemsDataGrid.Count; f++)
+                    {
+                        camposTabela.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] [varchar](max) NULL, ");
+                    }
+
+                    MessageBox.Show(camposTabela.ToString());
+
+                    SqlCommand cmdColuna = conn.CreateCommand();
+                    cmdColuna.CommandText =
+                      "IF OBJECT_ID('dbo.Inventario_Carga', 'U') IS NOT NULL " +
+                          "DROP TABLE dbo.Inventario_Carga; " +
+                            "CREATE TABLE [dbo].[Inventario_Carga](" +
+                               camposTabela  +
+                                "[ID] [int] IDENTITY(1,1) NOT NULL)" +
+                            " ON [PRIMARY]";
+
+                    SqlTransaction trA = null;
+                    conn.Open();
+                    trA = conn.BeginTransaction();
+                    cmdColuna.Transaction = trA;
+                    cmdColuna.ExecuteNonQuery();
+                    trA.Commit();
+                    conn.Close();
+                    MessageBox.Show(cmdColuna.ToString());
+
+
+                    for (int a = 0; a < dataGridView1.Rows.Count; a++)
+                    {
                         if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
                         {
                             itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
@@ -143,6 +152,7 @@ namespace testeCampos
                     }
 
                     StringBuilder camposExcel = new StringBuilder();
+
                     for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
                         if (f == itemsDataGrid.Count - 1)
@@ -155,26 +165,26 @@ namespace testeCampos
                         }
                     }
 
+    
+
                     OleDbCommand command = new OleDbCommand
-                    ("Select " + camposExcel + "  FROM [inventario$]", connection);
-
+                    ("Select " + camposExcel + "  FROM ["+ nomeSheet + "$]", connection);
                     connection.Open();
-
                     OleDbDataReader dReader = command.ExecuteReader();
 
                     using (SqlBulkCopy sqlBulk = new SqlBulkCopy(sqlConnectionString))
                     {
-                        sqlBulk.DestinationTableName = "inventario";
+                        sqlBulk.DestinationTableName = "inventario_carga";
                         sqlBulk.WriteToServer(dReader);
                     }
 
                     SqlCommand cmdCopPedido = conn.CreateCommand();
                     cmdCopPedido.CommandText =
-                        @"INSERT INTO D_inventario ()
-                        SELECT
-                        FROM inventario
-                        where cli_id is not null and cli_vinc is not null
-                        GROUP BY CLI_ID, CLI_VINC, CLI_PSS_ID, [Cli_Vinc_DT_Ini], [Cli_Vinc_DT_Fim]";
+                        @"INSERT INTO [dbo].[D_Inventario_Carga] ([Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[Lin_Origem_ID])
+                        SELECT [Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[ID]
+                        FROM [dbo].[Inventario_Carga]
+                        where inv_pro_id is not null and inv_data is not null and inv_cnpj is not null
+                        GROUP BY [Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[ID]";
                     SqlTransaction tr = null;
 
                     try
@@ -184,7 +194,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela inventario copiada ");
+                        MessageBox.Show("Tabela Inventario Copiada ");
                     }
                     catch (Exception ex)
                     {
