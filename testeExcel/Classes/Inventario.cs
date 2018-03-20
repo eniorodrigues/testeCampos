@@ -83,9 +83,7 @@ namespace testeCampos
                 //        nomeSheet = MyApp.Workbooks[1].Sheets[1].Name.ToString();
                 //    }
                 //}
-
-
-
+                 
                 excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx; Extended Properties=Excel 12.0;";
 
                 using (OleDbConnection connection = new OleDbConnection(excelConnectionString))
@@ -110,19 +108,52 @@ namespace testeCampos
 
                     for (int a = 0; a < dataGridView1.Rows.Count; a++)
                     {
-                        if (dataGridView1.Rows[a].Cells[0].Value.ToString() != "")
+                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
                         {
                             itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                        }
+                    }
+
+                    List<String> itemsDataGridInsert = new List<String>();
+                    //itemsDataGridInsert = null;
+                    for (int a = 0; a < dataGridView1.Rows.Count; a++)
+                    {
+                      
+
+                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                        {
+                            itemsDataGridInsert.Add(dataGridView1.Rows[a].Cells[0].Value.ToString());
                         }
                     }
 
                     StringBuilder camposTabela = new StringBuilder();
                     for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
-                        camposTabela.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] [varchar](max) NULL, ");
+                            camposTabela.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] [varchar](max) NULL, ");
                     }
 
-                    MessageBox.Show(camposTabela.ToString());
+                    StringBuilder camposTabelaInsert = new StringBuilder();
+                    for (int f = 0; f < itemsDataGridInsert.Count; f++)
+                    {
+                        if (f == itemsDataGrid.Count - 1)
+                        {
+                            camposTabelaInsert.Append("[" + Convert.ToString(itemsDataGridInsert[f]).Replace(".", "#") + "] ");
+                        }
+                        else
+                        {
+                            camposTabelaInsert.Append("[" + Convert.ToString(itemsDataGridInsert[f]).Replace(".", "#") + "], ");
+                        }
+                    }
+
+
+
+
+                    //for (int f = 0; f < itemsDataGrid.Count; f++)
+                    //{
+                    //    camposTabela.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] [varchar](max) NULL, ");
+                    //}
+
+                    //      MessageBox.Show(camposTabelaInsert.ToString());
 
                     SqlCommand cmdColuna = conn.CreateCommand();
                     cmdColuna.CommandText =
@@ -140,19 +171,19 @@ namespace testeCampos
                     cmdColuna.ExecuteNonQuery();
                     trA.Commit();
                     conn.Close();
-                    MessageBox.Show(cmdColuna.ToString());
 
 
-                    for (int a = 0; a < dataGridView1.Rows.Count; a++)
-                    {
-                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
-                        {
-                            itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
-                        }
-                    }
+                    //    for (int a = 0; a < dataGridView1.Rows.Count; a++)
+                    //     {
+                    //if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                    //{
+                    //    MessageBox.Show(itemsDataGrid.Count.ToString());
+                    //     itemsDataGrid.Add(dataGridView1.Rows[a].Cells[1].Value.ToString());
+                    //  }
+                    //   }
 
                     StringBuilder camposExcel = new StringBuilder();
-
+                   
                     for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
                         if (f == itemsDataGrid.Count - 1)
@@ -164,7 +195,7 @@ namespace testeCampos
                             camposExcel.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                         }
                     }
-
+                    //MessageBox.Show(camposExcel.ToString());
     
 
                     OleDbCommand command = new OleDbCommand
@@ -179,12 +210,15 @@ namespace testeCampos
                     }
 
                     SqlCommand cmdCopPedido = conn.CreateCommand();
+
                     cmdCopPedido.CommandText =
-                        @"INSERT INTO [dbo].[D_Inventario_Carga] ([Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[Lin_Origem_ID])
-                        SELECT [Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[ID]
-                        FROM [dbo].[Inventario_Carga]
-                        where inv_pro_id is not null and inv_data is not null and inv_cnpj is not null
-                        GROUP BY [Inv_Pro_ID],[Inv_Data],[Inv_CNPJ],[Inv_Qtde],[Inv_Valor],[Inv_Tipo],[Inv_Und_Id],[Inv_Div_Id],[Inv_Local_Negocio],[ID]";
+                        "INSERT INTO [dbo].[D_Inventario_Carga] ( " + camposTabelaInsert + " )" +
+                        "SELECT " + camposExcel +
+                        "FROM [dbo].[Inventario_Carga]";
+                    //"where inv_pro_id is not null and inv_data is not null and inv_cnpj is not null";
+                    // "GROUP BY " + camposTabelaInsert ;
+
+                    MessageBox.Show(cmdCopPedido.CommandText.ToString());
                     SqlTransaction tr = null;
 
                     try
