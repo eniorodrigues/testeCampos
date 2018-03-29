@@ -52,22 +52,30 @@ namespace testeExcel
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if(comboBox1.SelectedItem.ToString() == "D_Clientes")
-            {
-                clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
-            }
-            if(comboBox1.SelectedItem.ToString() == "D_Fornecedores")
-            {
-                fornecedores.geraFornecedores(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
-            }
-            if(comboBox1.SelectedItem.ToString() == "D_Produtos")
-            {
-                produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
-            }
-            if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
-            {
-                inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
-            }
+            //try
+            //{
+                if (comboBox1.SelectedItem.ToString() == "D_Clientes")
+                {
+                    clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                }
+                if (comboBox1.SelectedItem.ToString() == "D_Fornecedores")
+                {
+                    fornecedores.geraFornecedores(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                }
+                if (comboBox1.SelectedItem.ToString() == "D_Produtos")
+                {
+                    produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                }
+                if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
+                {
+                    inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                }
+            //}
+            //catch
+            //{
+            //    MessageBox.Show("Informe a tabela que será carregada");
+            //}
+         
         }
 
         private void buttonAbrir_Click(object sender, EventArgs e)

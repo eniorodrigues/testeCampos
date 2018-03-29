@@ -46,9 +46,9 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(21, 63);
+            this.button1.Location = new System.Drawing.Point(473, 98);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(120, 57);
             this.button1.TabIndex = 0;
             this.button1.Text = "Carregar";
             this.button1.UseVisualStyleBackColor = true;
@@ -57,7 +57,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(324, 123);
+            this.label1.Location = new System.Drawing.Point(298, 106);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 1;
@@ -65,9 +65,9 @@
             // 
             // buttonAbrir
             // 
-            this.buttonAbrir.Location = new System.Drawing.Point(21, 29);
+            this.buttonAbrir.Location = new System.Drawing.Point(17, 12);
             this.buttonAbrir.Name = "buttonAbrir";
-            this.buttonAbrir.Size = new System.Drawing.Size(121, 23);
+            this.buttonAbrir.Size = new System.Drawing.Size(140, 57);
             this.buttonAbrir.TabIndex = 9;
             this.buttonAbrir.Text = "Abrir Arquivo";
             this.buttonAbrir.UseVisualStyleBackColor = true;
@@ -76,7 +76,7 @@
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(21, 92);
+            this.listBox1.Location = new System.Drawing.Point(17, 75);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(275, 17);
             this.listBox1.TabIndex = 10;
@@ -85,7 +85,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(324, 92);
+            this.label2.Location = new System.Drawing.Point(298, 75);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(35, 13);
             this.label2.TabIndex = 11;
@@ -110,7 +110,7 @@
             "D_PVA_PVV",
             "D_Relacao_Carga",
             "D_Vendas_Itens"});
-            this.comboBox1.Location = new System.Drawing.Point(21, 115);
+            this.comboBox1.Location = new System.Drawing.Point(17, 98);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(275, 21);
             this.comboBox1.TabIndex = 16;
@@ -119,7 +119,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(340, 180);
+            this.label3.Location = new System.Drawing.Point(295, 162);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(46, 13);
             this.label3.TabIndex = 17;
@@ -128,7 +128,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(18, 180);
+            this.label4.Location = new System.Drawing.Point(14, 163);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(31, 13);
             this.label4.TabIndex = 17;
@@ -142,7 +142,7 @@
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(62, 205);
+            this.dataGridView1.Location = new System.Drawing.Point(17, 187);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.dataGridView1.RowHeadersVisible = false;
@@ -160,7 +160,7 @@
             this.dataGridView2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView2.ColumnHeadersVisible = false;
-            this.dataGridView2.Location = new System.Drawing.Point(343, 205);
+            this.dataGridView2.Location = new System.Drawing.Point(298, 187);
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.RowHeadersVisible = false;
             this.dataGridView2.ShowEditingIcon = false;
@@ -171,7 +171,7 @@
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(21, 142);
+            this.comboBox2.Location = new System.Drawing.Point(17, 125);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(275, 21);
             this.comboBox2.TabIndex = 22;
@@ -180,7 +180,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(392, 180);
+            this.label5.Location = new System.Drawing.Point(347, 162);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(46, 13);
             this.label5.TabIndex = 17;
@@ -190,7 +190,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(688, 435);
+            this.ClientSize = new System.Drawing.Size(622, 384);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.button1);
