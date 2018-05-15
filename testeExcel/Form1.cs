@@ -49,11 +49,54 @@ namespace testeExcel
         public Fornecedores fornecedores = new Fornecedores();
         public Produtos produtos = new Produtos();
         public Inventario inventario = new Inventario();
+        public SqlConnection conn = null;
+        public bool checado;
+
+        private void comboBoxServidor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+            conexao = comboBoxServidor.Text;
+            conn = new SqlConnection ("Data Source=" + conexao + "; Integrated Security=True;");
+            
+                conn.Open();
+                System.Data.DataTable databases = conn.GetSchema("Databases");
+                comboBoxBase.Items.Clear();
+
+                foreach (DataRow database in databases.Rows)
+                {
+                    String databaseName = database.Field<String>("database_name");
+                    comboBoxBase.Items.Add(databaseName);
+                }
+
+            conn.Close();
+           
+        }
+
+        public bool veficaChecado(bool checado)
+        {
+            return this.checado;
+        }
+
+        private void comboBoxServidor_Enter(object sender, EventArgs e)
+        {
+            comboBoxServidor.Items.Clear();
+            string myServer = Environment.MachineName;
+
+            System.Data.DataTable servers = SqlDataSourceEnumerator.Instance.GetDataSources();
+            for (int i = 0; i < servers.Rows.Count; i++)
+            {
+                if (myServer == servers.Rows[i]["ServerName"].ToString())
+                {
+                    if ((servers.Rows[i]["InstanceName"] as string) != null)
+                        comboBoxServidor.Items.Add(servers.Rows[i]["ServerName"] + "\\" + servers.Rows[i]["InstanceName"]);
+                    else
+                        comboBoxServidor.Items.Add(servers.Rows[i]["ServerName"]);
+                }
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //try
-            //{
                 if (comboBox1.SelectedItem.ToString() == "D_Clientes")
                 {
                     clientes.geraCliente(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
@@ -64,18 +107,12 @@ namespace testeExcel
                 }
                 if (comboBox1.SelectedItem.ToString() == "D_Produtos")
                 {
-                    produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                    produtos.geraProdutos(filesAdionado, MyApp, caminho, directoryPath, nomeSheet, excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
                 }
                 if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
                 {
-                    inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1);
+                    inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, checado);
                 }
-            //}
-            //catch
-            //{
-            //    MessageBox.Show("Informe a tabela que será carregada");
-            //}
-         
         }
 
         private void buttonAbrir_Click(object sender, EventArgs e)
@@ -96,14 +133,17 @@ namespace testeExcel
                     {
                         using (myStream)
                         {
+                           
                             caminho = openFileDialog1.FileName;
                             directoryPath = Path.GetDirectoryName(openFileDialog1.FileName);
                             files = (openFileDialog1.SafeFileNames);
+                            
                             foreach (string file in files)
                             {
                                 filesAdionado.Add(file);
                                 listBox1.Items.Add(file);
                             }
+                            
                             carregaLinhas();
                         }
                     }
@@ -117,8 +157,6 @@ namespace testeExcel
 
         public void carregaLinhas()
         {
-            SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
-
             SqlCommand cmdCampos = conn.CreateCommand();
 
             cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
@@ -169,26 +207,32 @@ namespace testeExcel
             //}
         }
 
+        public void Adicionar()
+        {
+            MessageBox.Show("Aci");
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
+     
+         //      SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=MANN_2017; Integrated Security=True");
 
-            SqlCommand cmdCampos = conn.CreateCommand();
+         //   SqlCommand cmdCampos = conn.CreateCommand();
 
-            cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
-                  DROP TABLE dbo.[campos]
-                 CREATE TABLE [dbo].[campos](
-	                                [campo_excel] [varchar](70) NULL,
-	                                [campo_sql] [varchar](70) NULL)";
+            //cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
+            //      DROP TABLE dbo.[campos]
+            //     CREATE TABLE [dbo].[campos](
+	           //                     [campo_excel] [varchar](70) NULL,
+	           //                     [campo_sql] [varchar](70) NULL)";
 
-            SqlTransaction trA = null;
+            //SqlTransaction trA = null;
 
-            conn.Open();
-            trA = conn.BeginTransaction();
-            cmdCampos.Transaction = trA;
-            cmdCampos.ExecuteNonQuery();
-            trA.Commit();
-            conn.Close();
+            //conn.Open();
+            //trA = conn.BeginTransaction();
+            //cmdCampos.Transaction = trA;
+            //cmdCampos.ExecuteNonQuery();
+            //trA.Commit();
+            //conn.Close();
 
         }
 
@@ -198,9 +242,11 @@ namespace testeExcel
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
+            baseDeDados = comboBoxBase.SelectedItem.ToString();
 
-            string connectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
+            conn = new SqlConnection(@"Data Source=" + conexao + " ; Initial Catalog=" + baseDeDados + ";Integrated Security=True");
+
+         //   string connectionString = "Data Source=" + conexao +" ; Initial Catalog=" + baseDeDados +  ";Integrated Security=True";
 
             string sql = "SELECT c.name as Campo_SQL , '' as Campo_Excel " +
                         "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id "+
@@ -208,12 +254,12 @@ namespace testeExcel
                         "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
                         "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "')";
 
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlDataAdapter dataadapter = new SqlDataAdapter(sql, connection);
+            //SqlConnection connection = new SqlConnection(connectionString);
+            SqlDataAdapter dataadapter = new SqlDataAdapter(sql, conn);
             DataSet ds = new DataSet();
-            connection.Open();
+            conn.Open();
             dataadapter.Fill(ds, "campos");
-            connection.Close();
+            conn.Close();
             dataGridView1.DataSource = ds;
             dataGridView1.DataMember = "campos";
         }
@@ -260,9 +306,7 @@ namespace testeExcel
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-          
             colunas.Clear();
- 
             for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].UsedRange.Columns.Count; k++)
             {
                 if (Convert.ToString((MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[comboBox2.SelectedIndex + 1].Cells[1, k].Value2.ToString()) != "")
@@ -272,11 +316,9 @@ namespace testeExcel
                     colunasCreate.Add(coluna.Trim());
                 }
             }
-
             System.Data.DataTable table = ConvertListToDataTable(colunas);
             dataGridView2.DataSource = table;
             label5.Text = comboBox2.SelectedItem.ToString();
-
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -288,6 +330,14 @@ namespace testeExcel
         {
 
         }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            Form2 form2 = new Form2(this);
+            form2.ShowDialog();
+        }
+
+      
     }
 
 }

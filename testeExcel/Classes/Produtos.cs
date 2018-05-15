@@ -23,7 +23,7 @@ namespace testeCampos
 {
    public class Produtos
     {
-        public void geraProdutos(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1)
+        public void geraProdutos(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn)
         {
 
             foreach (string element in filesAdionado)
@@ -67,15 +67,12 @@ namespace testeCampos
                 }
                 xlApp.Quit();
 
-                //MyApp.Range["A:A"].NumberFormat = "@";
-                //MyApp.Range["B:B"].NumberFormat = "@";
-
                 wb.SaveAs(directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx");
                 wb.Close();
-
-                SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
-                string sqlConnectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
-
+                
+               // SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=MANN_2017; Integrated Security=True");
+               // string sqlConnectionString = "Data Source=BRCAENRODRIGUES\\SQLSERVER;Initial Catalog=MANN_2017;Integrated Security=True";
+               
                 for (int i = 1; i <= MyApp.Workbooks.Count; i++)
                 {
                     for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
@@ -127,6 +124,8 @@ namespace testeCampos
                         }
                     }
 
+                    MessageBox.Show(comandoExcel.ToString());
+
                     string arquivo = element;
                     string campos = Convert.ToString(comandoExcel);
 
@@ -157,8 +156,8 @@ namespace testeCampos
                     connection.Open();
 
                     OleDbDataReader dReader = command.ExecuteReader();
-
-                    using (SqlBulkCopy sqlBulk = new SqlBulkCopy(sqlConnectionString))
+                    conn.Open();
+                    using (SqlBulkCopy sqlBulk = new SqlBulkCopy(conn))
                     {
                         sqlBulk.DestinationTableName = "Produtos";
                         sqlBulk.WriteToServer(dReader);
@@ -175,7 +174,7 @@ namespace testeCampos
 
                     try
                     {
-                        conn.Open();
+                        //conn.Open();
                         tr = conn.BeginTransaction();
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
