@@ -21,9 +21,9 @@ using System.Text.RegularExpressions;
 
 namespace testeCampos
 {
-   public class ClientesTeste
+   public class ProdutoTeste
     {
-        public void geraClienteTeste(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn)
+        public void geraProdutoTeste(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn)
         {
             foreach (string element in filesAdionado)
             {
@@ -132,14 +132,11 @@ namespace testeCampos
                         }
                     }
 
-                    //temporario
-                    conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=MANN_2017; Integrated Security=True");
-
                     SqlCommand cmdColuna = conn.CreateCommand();
                     cmdColuna.CommandText =
-                      "IF OBJECT_ID('dbo.clientes', 'U') IS NOT NULL " +
-                      "DROP TABLE dbo.clientes; " +
-                        "CREATE TABLE[dbo].[clientes](" +
+                      "IF OBJECT_ID('dbo.produtos', 'U') IS NOT NULL " +
+                      "DROP TABLE dbo.produtos; " +
+                        "CREATE TABLE[dbo].[produtos](" +
                                camposTabela +
                                 "[ID] [int] IDENTITY(1,1) NOT NULL)" +
                             " ON [PRIMARY]";
@@ -174,95 +171,30 @@ namespace testeCampos
                     {
                         if (f < itemsDataGrid.Count - 1)
                         {
-                            if (itemsDataGridInsert[f] == "Cli_Vinc_DT_Ini")
+                            if (itemsDataGridInsert[f] == "Pro_ID")
                             {
-                                camposTabelaInsert.Append(" max (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc_DT_Fim")
-                            {
-                                camposTabelaInsert.Append(" max (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Pss_ID")
-                            {
-                                camposTabelaInsert.Append(" max (convert(int, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc")
-                            {
-                                camposTabelaInsert.Append(" max (replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc_Justific")
-                            {
-                                camposTabelaInsert.Append(" max (replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Paraiso_Fiscal")
-                            {
-                                camposTabelaInsert.Append(" max (replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_CNPJ")
-                            {
-                                camposTabelaInsert.Append(" max (isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0)) , ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Nome")
-                            {
-                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_ID")
-                            {
-                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] , ");
+                               
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                                 camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
-                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
                             else
                             {
                                 camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
-                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                             }
+                                
                         }
                         else
                         {
-                            if (itemsDataGridInsert[f] == "Cli_Vinc_DT_Ini")
+                            if (itemsDataGridInsert[f] == "Pro_ID")
                             {
-                                camposTabelaInsert.Append(" max (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc_DT_Fim")
-                            {
-                                camposTabelaInsert.Append(" max(convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Pss_ID")
-                            {
-                                camposTabelaInsert.Append(" max (convert(int, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc")
-                            {
-                                camposTabelaInsert.Append(" max(replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Vinc_Justific")
-                            {
-                                camposTabelaInsert.Append(" max(replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Paraiso_Fiscal")
-                            {
-                                camposTabelaInsert.Append(" max(replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.')), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_CNPJ")
-                            {
-                                camposTabelaInsert.Append(" max (isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0)) , max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_Nome")
-                            {
-                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Cli_ID")
-                            {
-                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] , max(ID)");
-                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  ");
-                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ID ");
+                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
                             else
                             {
-                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] , max(ID) ");
-                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ID ");
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ID ");
                             }
+                            
                         }
                     }
                     conn.Open();
@@ -274,19 +206,18 @@ namespace testeCampos
                     OleDbDataReader dReader = command.ExecuteReader();
                     using (SqlBulkCopy sqlBulk = new SqlBulkCopy(conn))
                     {
-                        sqlBulk.DestinationTableName = "clientes";
+                        sqlBulk.DestinationTableName = "produtos";
                         sqlBulk.WriteToServer(dReader);
                     }
                     SqlCommand cmdCopPedido = conn.CreateCommand();
 
                     cmdCopPedido.CommandText =
-                   " INSERT INTO [dbo].[D_Clientes] ( " + camposTabelaSQL + " ) " +
+                   " INSERT INTO [dbo].[D_Produtos] ( " + camposTabelaSQL + " ) " +
                    " SELECT " + camposTabelaInsert +
-                   " FROM [dbo].[Clientes] " +
-                   " WHERE " + camposWhere + " IS NOT NULL " +
-                   " GROUP BY " + camposGroupBy;
+                   " FROM [dbo].[Produtos] " +
+                   " WHERE " + camposWhere + " IS NOT NULL ";
 
-                    MessageBox.Show(" === " + cmdCopPedido.CommandText);
+                    MessageBox.Show("cmdCopPedido.CommandText === " + cmdCopPedido.CommandText);
                     SqlTransaction tr = null;
                     conn.Close();
 
@@ -297,7 +228,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela Clientes Copiada ");
+                        MessageBox.Show("Tabela Produtos Copiada ");
                     }
                     catch (Exception ex)
                     {

@@ -21,14 +21,15 @@ using System.Text.RegularExpressions;
 
 namespace testeCampos
 {
-   public class Fornecedores
+   public class FornecedoresTeste
     {
-        public void geraFornecedores(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1)
-        {
 
+        public string qwe { get; set; }
+
+        public void geraFornecedoresTeste(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn)
+        {
             foreach (string element in filesAdionado)
             {
-
                 MyApp = new Excel.Application();
                 MyApp.Workbooks.Add(caminho);
                 Workbook wb = MyApp.Workbooks.Add(caminho);
@@ -39,6 +40,7 @@ namespace testeCampos
                 Excel.Worksheet xlWorksheet = xlWorkbook.Sheets[1]; // assume it is the first sheet
                 int columnCount = xlWorksheet.UsedRange.Columns.Count;
                 List<string> columnNames = new List<string>();
+                int group = 0;
 
                 for (int c = 1; c < columnCount; c++)
                 {
@@ -54,69 +56,31 @@ namespace testeCampos
                             {
                                 ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].NumberFormat = "@";
                             }
-                            if (xlWorksheet.Cells[1, c].Value2.Contains("CNPJ"))
-                            {
-                                ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].EntireColumn.NumberFormat = "General";
-                            }
-                            if (xlWorksheet.Cells[1, c].Value2.Contains("data"))
-                            {
-                                ws.Range[match.Groups[2].Value + ":" + match.Groups[2].Value].Replace(".", "/");
-                            }
                         }
                     }
                 }
                 xlApp.Quit();
 
-                //MyApp.Range["A:A"].NumberFormat = "@";
-                //MyApp.Range["B:B"].NumberFormat = "@";
+                //formata pra não ficar nulo e replace pra data com .
+                //devera condicionar formatação pelo nome da coluna e tambem criar janela para
+                //personalização da formatação
+
+                MyApp.Range["A:A"].NumberFormat = "@";
+                MyApp.Range["B:B"].NumberFormat = "@";
+                MyApp.Range["C:C"].NumberFormat = "@";
+                MyApp.Range["D:D"].NumberFormat = "@";
+                MyApp.Range["E:E"].NumberFormat = "@";
+                MyApp.Range["F:F"].NumberFormat = "@";
+                MyApp.Range["G:G"].NumberFormat = "@";
+                MyApp.Range["H:H"].NumberFormat = "@";
 
                 wb.SaveAs(directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx");
                 wb.Close();
-
-                SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLEXPRESS; Initial Catalog=my_database; Integrated Security=True");
-                string sqlConnectionString = "Data Source=BRCAENRODRIGUES\\SQLEXPRESS;Initial Catalog=my_database;Integrated Security=True";
-
-                for (int i = 1; i <= MyApp.Workbooks.Count; i++)
-                {
-                    for (int j = 1; j <= MyApp.Workbooks[i].Worksheets.Count; j++)
-                    {
-                        nomeSheet = MyApp.Workbooks[1].Sheets[1].Name.ToString();
-                    }
-                }
-
-                SqlCommand cmdColuna = conn.CreateCommand();
-
-                cmdColuna.CommandText =
-                  "IF OBJECT_ID('dbo.fornecedores', 'U') IS NOT NULL " +
-                      "DROP TABLE dbo.fornecedores; " +
-                        "CREATE TABLE [dbo].[Fornecedores](" +
-                            "[For_ID] [varchar](70) NULL," +
-                            "[For_Nome] [varchar](255) NULL," +
-                            "[For_PSS_ID] [int] NULL," +
-                            "[For_Vinc] [varchar](1) NULL," +
-                            "[For_Vinc_DT_Ini] [datetime] NULL," +
-                            "[For_Vinc_DT_Fim] [datetime] NULL," +
-                            "[For_CNPJ] [varchar](40) NULL," +
-                            "[For_Vinc_Just] [varchar](2) NULL," +
-                            "[For_Paraiso_Fiscal] [varchar](1) NULL," +
-                            "[Arq_Origem_ID] [int] NULL," +
-                            "[ID] [int] IDENTITY(1,1) NOT NULL" +
-                        ") ON [PRIMARY]";
-
-                SqlTransaction trA = null;
-
-                conn.Open();
-                trA = conn.BeginTransaction();
-                cmdColuna.Transaction = trA;
-                cmdColuna.ExecuteNonQuery();
-                trA.Commit();
-                conn.Close();
 
                 excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + directoryPath + "\\" + System.IO.Path.GetFileNameWithoutExtension(element) + "-(formatado).xlsx; Extended Properties=Excel 12.0;";
 
                 using (OleDbConnection connection = new OleDbConnection(excelConnectionString))
                 {
-
                     StringBuilder comandoExcel = new StringBuilder();
 
                     for (int h = 0; h < colunas.Count; h++)
@@ -142,7 +106,57 @@ namespace testeCampos
                         }
                     }
 
+                    List<String> itemsDataGridInsert = new List<String>();
+
+                    for (int a = 0; a < dataGridView1.Rows.Count; a++)
+                    {
+                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                        {
+                            itemsDataGridInsert.Add(dataGridView1.Rows[a].Cells[0].Value.ToString());
+                        }
+                    }
+
+                    StringBuilder camposTabela = new StringBuilder();
+                    for (int f = 0; f < itemsDataGrid.Count; f++)
+                    {
+                        camposTabela.Append("[" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] [varchar](max) NULL, ");
+                    }
+
+                    StringBuilder camposTabelaSQL = new StringBuilder();
+                    for (int f = 0; f < itemsDataGridInsert.Count; f++)
+                    {
+                        if (f == itemsDataGrid.Count - 1)
+                        {
+                            camposTabelaSQL.Append("[" + Convert.ToString(itemsDataGridInsert[f]).Replace(".", "#") + "], [Lin_Origem_ID] ");
+                        }
+                        else
+                        {
+                            camposTabelaSQL.Append("[" + Convert.ToString(itemsDataGridInsert[f]).Replace(".", "#") + "],  ");
+                        }
+                    }
+
+                    //temporario
+                    conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=MANN_2017; Integrated Security=True");
+
+                    SqlCommand cmdColuna = conn.CreateCommand();
+                    cmdColuna.CommandText =
+                      "IF OBJECT_ID('dbo.fornecedores', 'U') IS NOT NULL " +
+                      "DROP TABLE dbo.fornecedores; " +
+                        "CREATE TABLE[dbo].[fornecedores](" +
+                               camposTabela +
+                                "[ID] [int] IDENTITY(1,1) NOT NULL)" +
+                            " ON [PRIMARY]";
+
+                    SqlTransaction trA = null;
+                    conn.Open();
+                    trA = conn.BeginTransaction();
+                    cmdColuna.Transaction = trA;
+                    cmdColuna.ExecuteNonQuery();
+                    trA.Commit();
+                    conn.Close();
+
                     StringBuilder camposExcel = new StringBuilder();
+
                     for (int f = 0; f < itemsDataGrid.Count; f++)
                     {
                         if (f == itemsDataGrid.Count - 1)
@@ -155,27 +169,128 @@ namespace testeCampos
                         }
                     }
 
+                    StringBuilder camposTabelaInsert = new StringBuilder();
+                    StringBuilder camposGroupBy = new StringBuilder();
+                    StringBuilder camposWhere = new StringBuilder();
+
+                    for (int f = 0; f < itemsDataGridInsert.Count; f++)
+                    {
+                        if (f < itemsDataGrid.Count - 1)
+                        {
+                            if (itemsDataGridInsert[f] == "For_Vinc_DT_Ini")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc_DT_Fim")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_PSS_ID")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]),  ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc_Justific")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Paraiso_Fiscal")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_CNPJ")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Nome")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_ID")
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
+                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                            }
+                            else
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
+                            }
+                        }
+                        else
+                        {
+                            if (itemsDataGridInsert[f] == "For_Vinc_DT_Ini")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc_DT_Fim")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_PSS_ID")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]),  max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Vinc_Justific")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Paraiso_Fiscal")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_CNPJ")
+                            {
+                                camposTabelaInsert.Append(" max ([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_Nome")
+                            {
+                                camposTabelaInsert.Append(" max([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]), max(ID) ");
+                            }
+                            else if (itemsDataGridInsert[f] == "For_ID")
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], max(ID) ");
+                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                            }
+                            else
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], max(ID) ");
+                            }
+                        }
+                    }
+                    conn.Open();
                     OleDbCommand command = new OleDbCommand
-                    ("Select " + camposExcel + "  FROM [fornecedores$]", connection);
-
+                     
+                    ("Select " + camposExcel + "  FROM [" + nomeSheet + "$]", connection);
+                    
                     connection.Open();
-
                     OleDbDataReader dReader = command.ExecuteReader();
-
-                    using (SqlBulkCopy sqlBulk = new SqlBulkCopy(sqlConnectionString))
+                    using (SqlBulkCopy sqlBulk = new SqlBulkCopy(conn))
                     {
                         sqlBulk.DestinationTableName = "Fornecedores";
                         sqlBulk.WriteToServer(dReader);
                     }
-
                     SqlCommand cmdCopPedido = conn.CreateCommand();
+
                     cmdCopPedido.CommandText =
-                        @"INSERT INTO D_FORNECEDORES (FOR_ID, FOR_NOME, FOR_VINC, FOR_PSS_ID, [FOR_Vinc_DT_Ini], [FOR_Vinc_DT_Fim], [FOR_CNPJ], Lin_Origem_id)
-                        SELECT FOR_ID, max(FOR_NOME), FOR_VINC, max(FOR_PSS_ID), [FOR_Vinc_DT_Ini], [FOR_Vinc_DT_Fim], max([FOR_CNPJ]), max(id)
-                        FROM fornecedores
-                        where FOR_id is not null and FOR_vinc is not null
-                        GROUP BY FOR_ID, FOR_VINC, [FOR_Vinc_DT_Ini], [FOR_Vinc_DT_Fim]";
+                   " INSERT INTO [dbo].[D_fornecedores] ( " + camposTabelaSQL + " ) " +
+                   " SELECT " + camposTabelaInsert +
+                   " FROM [dbo].[fornecedores] " +
+                   " WHERE " + camposWhere + " IS NOT NULL " +
+                   " GROUP BY " + camposGroupBy;
+                  //  qwe = cmdCopPedido.CommandText;
+                    MessageBox.Show(" === " + cmdCopPedido.CommandText);
+                    
                     SqlTransaction tr = null;
+                    conn.Close();
 
                     try
                     {
@@ -184,7 +299,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela fornecedores copiada ");
+                        MessageBox.Show("Tabela fornecedores Copiada ");
                     }
                     catch (Exception ex)
                     {
@@ -195,7 +310,6 @@ namespace testeCampos
                     {
                         conn.Close();
                     }
-
                 }
             }
         }

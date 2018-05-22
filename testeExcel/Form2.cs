@@ -30,13 +30,11 @@ namespace testeCampos
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             formPrincipal.checado = true;
-            formPrincipal.veficaChecado(formPrincipal.checado);
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
             formPrincipal.checado = false;
-            formPrincipal.veficaChecado(formPrincipal.checado);
         }
     }
 }
