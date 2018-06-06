@@ -25,6 +25,8 @@ namespace testeCampos
     {
         public void geraInventario(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn, bool checado)
         {
+
+            MessageBox.Show(conn.ToString());
             foreach (string element in filesAdionado)
             {
                 MyApp = new Excel.Application();

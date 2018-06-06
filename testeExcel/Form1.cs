@@ -56,9 +56,10 @@ namespace testeExcel
         private void comboBoxServidor_SelectedIndexChanged(object sender, EventArgs e)
         {
             conexao = comboBoxServidor.Text;
-            conn = new SqlConnection ("Data Source=" + conexao + "; Integrated Security=True;");
-            
-                conn.Open();
+            //  conn = new SqlConnection ("Data Source=" + conexao + "; Integrated Security=True;");
+            conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=TEST_TEMP_2017; Integrated Security=True");
+
+            conn.Open();
                 System.Data.DataTable databases = conn.GetSchema("Databases");
                 comboBoxBase.Items.Clear();
 
@@ -109,7 +110,7 @@ namespace testeExcel
                 }
                 if (comboBox1.SelectedItem.ToString() == "D_Insumo_Produto")
                 {
-                    inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
+                    insumoProduto.geraInsumoProduto(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
                 }
         }
 
@@ -125,8 +126,8 @@ namespace testeExcel
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-              //  try
-             //   {
+                try
+                {
                     if ((myStream = openFileDialog1.OpenFile()) != null)
                     {
                         using (myStream)
@@ -143,34 +144,16 @@ namespace testeExcel
                             carregaLinhas();
                         }
                     }
-      //          }
-      //          catch (Exception ex)
-      //          {
-      //              MessageBox.Show(ex.Message);
-      //          }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
 
         public void carregaLinhas()
         {
-            //MessageBox.Show(conn.DataSource);
-            //SqlCommand cmdCampos = conn.CreateCommand();
-
-            //cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
-            //      DROP TABLE dbo.[campos]
-            //     CREATE TABLE [dbo].[campos](
-	           //                     [campo_excel] [varchar](70) NULL,
-	           //                     [campo_sql] [varchar](70) NULL)";
-
-            //SqlTransaction trA = null;
-
-            //conn.Open();
-            //trA = conn.BeginTransaction();
-            //cmdCampos.Transaction = trA;
-            //cmdCampos.ExecuteNonQuery();
-            //trA.Commit();
-            //conn.Close();
-
             label2.Text = caminho;
 
             MyApp = new Excel.Application();
@@ -185,47 +168,11 @@ namespace testeExcel
                 comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
             }
 
-            //for (int k = 1; k <= MyApp.Workbooks[2].Worksheets[1].UsedRange.Columns.Count; k++)
-            //{
-            //    if (Convert.ToString((MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2)) != null && Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2.ToString()) != "")
-            //    {
-            //        string coluna = Convert.ToString(MyApp.Workbooks[2].Worksheets[1].Cells[1, k].Value2);
-            //        colunas.Add(coluna);
-            //        colunasCreate.Add(coluna.Trim());
-
-            //        cmdCampos.CommandText = "INSERT INTO CAMPOS (CAMPO_EXCEL) VALUES ('" + coluna + "')";
-            //        conn.Open();
-            //        trAx = conn.BeginTransaction();
-            //        cmdCampos.Transaction = trAx;
-            //        cmdCampos.ExecuteNonQuery();
-            //        trAx.Commit();
-            //        conn.Close();
-            //    }
-            //}
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
-               SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=MANN_2017; Integrated Security=True");
-         //   MessageBox.Show(conn.DataSource);
-            //   SqlCommand cmdCampos = conn.CreateCommand();
-
-            //cmdCampos.CommandText = @"IF OBJECT_ID('dbo.[campos]', 'U') IS NOT NULL 
-            //      DROP TABLE dbo.[campos]
-            //     CREATE TABLE [dbo].[campos](
-            //                     [campo_excel] [varchar](70) NULL,
-            //                     [campo_sql] [varchar](70) NULL)";
-
-            //SqlTransaction trA = null;
-
-            //conn.Open();
-            //trA = conn.BeginTransaction();
-            //cmdCampos.Transaction = trA;
-            //cmdCampos.ExecuteNonQuery();
-            //trA.Commit();
-            //conn.Close();
-
+              conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=TEST_TEMP_2017; Integrated Security=True");
         }
 
         private void dataGridView2_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -247,7 +194,7 @@ namespace testeExcel
                         "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id "+
                         "LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id "+
                         "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
-                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "')";
+                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "') and  c.name !='Ins_Id' ";
 
             //SqlConnection connection = new SqlConnection(connectionString);
             SqlDataAdapter dataadapter = new SqlDataAdapter(sql, conn);
@@ -262,18 +209,15 @@ namespace testeExcel
         static System.Data.DataTable ConvertListToDataTable(List<string> list)
         {
             System.Data.DataTable table = new System.Data.DataTable();
-
             for (int i = 0; i < 1; i++)
             {
                 table.Columns.Add();
                 table.Columns[0].ColumnName = "Campos Excel";
             }
-
             foreach (var array in list)
             {
                 table.Rows.Add(array);
             }
-
             return table;
         }
 

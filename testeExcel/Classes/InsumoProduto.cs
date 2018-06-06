@@ -23,18 +23,19 @@ namespace testeCampos
 {
    public class InsumoProduto
     {
-        public void geraInsumoProduto(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn)
+        public void geraInsumoProduto(List<string> filesAdionado, Excel.Application MyApp, string caminho, string directoryPath, string nomeSheet, string excelConnectionString, List<string> colunas, List<string> colunasCreate, List<String> itemsDataGrid, DataGridView dataGridView1, SqlConnection conn, int sheet)
         {
             foreach (string element in filesAdionado)
             {
                 MyApp = new Excel.Application();
                 MyApp.Workbooks.Add(caminho);
                 Workbook wb = MyApp.Workbooks.Add(caminho);
-                Worksheet ws = wb.Sheets[1];
+                MessageBox.Show(sheet.ToString());
+                Worksheet ws = wb.Sheets[sheet + 1];
                 MyApp.DisplayAlerts = false;
                 Excel.Application xlApp = new Excel.Application();
                 Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(caminho);
-                Excel.Worksheet xlWorksheet = xlWorkbook.Sheets[1]; // assume it is the first sheet
+                Excel.Worksheet xlWorksheet = xlWorkbook.Sheets[sheet + 1]; 
                 int columnCount = xlWorksheet.UsedRange.Columns.Count;
                 List<string> columnNames = new List<string>();
                 int group = 0;
@@ -71,7 +72,7 @@ namespace testeCampos
                 //personalização da formatação
 
                 MyApp.Range["A:A"].NumberFormat = "@";
-                MyApp.Range["B:B"].Replace(".", "/");
+                MyApp.Range["B:B"].NumberFormat = "@";
                 MyApp.Range["C:C"].NumberFormat = "@";
                 MyApp.Range["D:D"].NumberFormat = "@";
                 MyApp.Range["E:E"].NumberFormat = "@";
@@ -115,7 +116,7 @@ namespace testeCampos
 
                     for (int a = 0; a < dataGridView1.Rows.Count; a++)
                     {
-                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "")
+                        if (dataGridView1.Rows[a].Cells[1].Value.ToString() != "" && dataGridView1.Rows[a].Cells[1].Value.ToString() != "Ins_Id")
                         {
                             itemsDataGridInsert.Add(dataGridView1.Rows[a].Cells[0].Value.ToString());
                         }
@@ -142,9 +143,9 @@ namespace testeCampos
 
                     SqlCommand cmdColuna = conn.CreateCommand();
                     cmdColuna.CommandText =
-                      "IF OBJECT_ID('dbo.Inventario_Carga', 'U') IS NOT NULL " +
-                          "DROP TABLE dbo.Inventario_Carga; " +
-                            "CREATE TABLE [dbo].[Inventario_Carga](" +
+                      "IF OBJECT_ID('dbo.Insumo_Produto', 'U') IS NOT NULL " +
+                          "DROP TABLE dbo.Insumo_Produto; " +
+                            "CREATE TABLE [dbo].[Insumo_Produto](" +
                                camposTabela +
                                 "[ID] [int] IDENTITY(1,1) NOT NULL)" +
                             " ON [PRIMARY]";
@@ -179,28 +180,36 @@ namespace testeCampos
                     {
                         if (f < itemsDataGrid.Count - 1)
                         {
-                            if (itemsDataGridInsert[f] == "Inv_Data")
+                            if (itemsDataGridInsert[f] == "Ins_PA_Pro_Id")
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f])  + "], ");
+                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] IS NOT NULL AND ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
+                            }
+                            else if (itemsDataGridInsert[f] == "Ins_MP_Pro_Id")
+                            {
+                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]) + "],  ");
+                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  IS NOT NULL ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
+                            }
+                            else if (itemsDataGridInsert[f] == "Ins_DT_Ini")
                             {
                                 camposTabelaInsert.Append(" (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), ");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_Qtde")
+                            else if (itemsDataGridInsert[f] == "Ins_DT_Fim")
                             {
-                                camposTabelaInsert.Append(" sum (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
+                                camposTabelaInsert.Append(" (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_Valor")
+                            else if (itemsDataGridInsert[f] == "Ins_Qtd_Produzida")
                             {
-                                camposTabelaInsert.Append(" sum (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
+                                camposTabelaInsert.Append(" (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_CNPJ")
+                            else if (itemsDataGridInsert[f] == "Ins_Qtd_Requisitada")
                             {
-                                camposTabelaInsert.Append(" isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0) , ");
-                                camposGroupBy.Append(" isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0) , ");
-                            }
-                            else if (itemsDataGridInsert[f] == "Inv_Pro_ID")
-                            {
-                                camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] , ");
-                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                                camposTabelaInsert.Append(" (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ");
                             }
                             else if (itemsDataGridInsert[f] == "Lin_Origem_ID")
@@ -216,36 +225,47 @@ namespace testeCampos
                         }
                         else
                         {
-                            if (itemsDataGridInsert[f] == "Inv_Data")
+                            //if (itemsDataGridInsert[f] == "Ins_PA_Pro_Id")
+                            //{
+                            //    camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]) + "] , max(ID) ");
+                            //    camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  IS NOT NULL  ");
+                            //    camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                            //}
+                            //if (itemsDataGridInsert[f] == "Ins_MP_Pro_Id")
+                            //{
+                            //    camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]) + "] , max(ID)");
+                            //    camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  IS NOT NULL ");
+                            //    camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                            //}
+                            if (itemsDataGridInsert[f] == "Ins_DT_Ini")
                             {
-                                camposTabelaInsert.Append(" (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), max(ID) ");
+                                camposTabelaInsert.Append(" (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), max(ID)");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_Qtde")
+                            else if (itemsDataGridInsert[f] == "Ins_DT_Fim")
                             {
-                                camposTabelaInsert.Append(" (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
+                                camposTabelaInsert.Append(" (convert( datetime, [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], 103)), max(ID)");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_Valor")
+                            else if (itemsDataGridInsert[f] == "Ins_Qtd_Produzida")
                             {
-                                camposTabelaInsert.Append(" (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
+                                camposTabelaInsert.Append("  (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID)");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_CNPJ")
+                            else if (itemsDataGridInsert[f] == "Ins_Qtd_Requisitada")
                             {
-                                camposTabelaInsert.Append(" isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0), max(ID) ");
-                                camposGroupBy.Append(" isnull([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "],0) ");
+                                camposTabelaInsert.Append("  (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID)");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
-                            else if (itemsDataGridInsert[f] == "Inv_Pro_ID")
+                            else if (itemsDataGridInsert[f] == "Lin_Origem_ID")
                             {
                                 camposTabelaInsert.Append(" [ " + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], max(ID) ");
-                                camposWhere.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  ");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
                             else
                             {
                                 camposTabelaInsert.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], max(ID) ");
-                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
+                                camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "]  ");
                             }
                         }
                     }
@@ -257,19 +277,19 @@ namespace testeCampos
                     OleDbDataReader dReader = command.ExecuteReader();
                     using (SqlBulkCopy sqlBulk = new SqlBulkCopy(conn))
                     {
-                        sqlBulk.DestinationTableName = "inventario_carga";
+                        sqlBulk.DestinationTableName = "Insumo_Produto";
                         sqlBulk.WriteToServer(dReader);
                     }
                     SqlCommand cmdCopPedido = conn.CreateCommand();
  
                         cmdCopPedido.CommandText =
-                       " INSERT INTO [dbo].[D_Inventario_Carga] ( " + camposTabelaSQL + " ) " +
+                       " INSERT INTO [dbo].[D_Insumo_Produto] ( " + camposTabelaSQL + " ) " +
                        " SELECT " + camposTabelaInsert +
-                       " FROM [dbo].[Inventario_Carga] " +
-                       " WHERE " + camposWhere + " IS NOT NULL " +
+                       " FROM [dbo].[Insumo_Produto] " +
+                       " WHERE " + camposWhere  +
                        " GROUP BY " + camposGroupBy;
 
-                    MessageBox.Show(cmdCopPedido.CommandText);
+                //    MessageBox.Show(cmdCopPedido.CommandText);
                     SqlTransaction tr = null;
                         conn.Close();
 
@@ -280,7 +300,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela Inventario Copiada ");
+                        MessageBox.Show("Tabela Insumo Produto Copiada ");
                     }
                     catch (Exception ex)
                     {
@@ -291,7 +311,6 @@ namespace testeCampos
                     {
                         conn.Close();
                     }
-
                 }
             }
         }
