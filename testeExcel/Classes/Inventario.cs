@@ -188,11 +188,11 @@ namespace testeCampos
                             }
                             else if (itemsDataGridInsert[f] == "Inv_Qtde")
                             {
-                                camposTabelaInsert.Append(" sum (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
+                                camposTabelaInsert.Append(" sum (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
                             }
                             else if (itemsDataGridInsert[f] == "Inv_Valor")
                             {
-                                camposTabelaInsert.Append(" sum (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
+                                camposTabelaInsert.Append(" sum (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), ");
                             }
                             else if (itemsDataGridInsert[f] == "Inv_CNPJ")
                             {
@@ -225,12 +225,12 @@ namespace testeCampos
                             }
                             else if (itemsDataGridInsert[f] == "Inv_Qtde")
                             {
-                                camposTabelaInsert.Append(" (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
+                                camposTabelaInsert.Append(" (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
                             else if (itemsDataGridInsert[f] == "Inv_Valor")
                             {
-                                camposTabelaInsert.Append(" (convert(numeric, replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
+                                camposTabelaInsert.Append(" (convert(decimal(12,4), replace([" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "], ',' , '.'))), max(ID) ");
                                 camposGroupBy.Append(" [" + Convert.ToString(itemsDataGrid[f]).Replace(".", "#") + "] ");
                             }
                             else if (itemsDataGridInsert[f] == "Inv_CNPJ")

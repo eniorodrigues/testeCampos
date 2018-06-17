@@ -50,6 +50,7 @@ namespace testeExcel
         public ProdutoTeste produtosTeste = new ProdutoTeste();
         public Inventario inventario = new Inventario();
         public InsumoProduto insumoProduto = new InsumoProduto();
+        public Vendas vendas = new Vendas();
         public SqlConnection conn = null;
         public bool checado;
 
@@ -92,26 +93,30 @@ namespace testeExcel
 
         private void button1_Click(object sender, EventArgs e)
         {
-                if (comboBox1.SelectedItem.ToString() == "D_Clientes")
-                {
-                    clientesTeste.geraClienteTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
-                }
-                if (comboBox1.SelectedItem.ToString() == "D_Fornecedores")
-                {
-                    fornecedores.geraFornecedoresTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
-                }
-                if (comboBox1.SelectedItem.ToString() == "D_Produtos")
-                {
-                     produtosTeste.geraProdutoTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
-                }
-                if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
-                {
-                    inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, checado);
-                }
-                if (comboBox1.SelectedItem.ToString() == "D_Insumo_Produto")
-                {
-                    insumoProduto.geraInsumoProduto(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
-                }
+            if (comboBox1.SelectedItem.ToString() == "D_Clientes")
+            {
+                clientesTeste.geraClienteTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Fornecedores")
+            {
+                fornecedores.geraFornecedoresTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Produtos")
+            {
+                    produtosTeste.geraProdutoTeste(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Inventario_Carga")
+            {
+                inventario.geraInventario(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, checado);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Insumo_Produto")
+            {
+                insumoProduto.geraInsumoProduto(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Vendas_Itens")
+            {
+                vendas.geraVendas(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
+            }
         }
 
         private void buttonAbrir_Click(object sender, EventArgs e)
@@ -136,11 +141,11 @@ namespace testeExcel
                             directoryPath = Path.GetDirectoryName(openFileDialog1.FileName);
                             files = (openFileDialog1.SafeFileNames);
                             
-                            foreach (string file in files)
-                            {
-                                filesAdionado.Add(file);
-                                listBox1.Items.Add(file);
-                            }
+                                foreach (string file in files)
+                                {
+                                    filesAdionado.Add(file);
+                                    listBox1.Items.Add(file);
+                                }
                             carregaLinhas();
                         }
                     }
@@ -162,7 +167,6 @@ namespace testeExcel
             MyApp.Workbooks.Add(caminho);
             SqlTransaction trAx = null;
 
-
             for (int i = 1; i <= MyApp.Workbooks[2].Worksheets.Count; i++)
             {
                 comboBox2.Items.Add(MyApp.Workbooks[2].Worksheets[i].Name);
@@ -181,11 +185,9 @@ namespace testeExcel
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // baseDeDados = comboBoxBase.SelectedItem.ToString();
-
-            //  conn = new SqlConnection(@"Data Source=" + conexao + " ; Initial Catalog=" + baseDeDados + ";Integrated Security=True");
-
-            //   string connectionString = "Data Source=" + conexao +" ; Initial Catalog=" + baseDeDados +  ";Integrated Security=True";
+            //baseDeDados = comboBoxBase.SelectedItem.ToString();
+            //conn = new SqlConnection(@"Data Source=" + conexao + " ; Initial Catalog=" + baseDeDados + ";Integrated Security=True");
+            //string connectionString = "Data Source=" + conexao +" ; Initial Catalog=" + baseDeDados +  ";Integrated Security=True";
 
             //temporario
             SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=TEST_TEMP_2017; Integrated Security=True");
@@ -194,7 +196,7 @@ namespace testeExcel
                         "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id "+
                         "LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id "+
                         "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
-                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "') and  c.name !='Ins_Id' ";
+                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "') and c.name !='Ins_Id' and c.name !='Vnd_ID'  ";
 
             //SqlConnection connection = new SqlConnection(connectionString);
             SqlDataAdapter dataadapter = new SqlDataAdapter(sql, conn);
@@ -262,12 +264,10 @@ namespace testeExcel
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-
         }
 
         private void button2_Click_1(object sender, EventArgs e)
@@ -275,8 +275,5 @@ namespace testeExcel
             Form2 form2 = new Form2(this);
             form2.ShowDialog();
         }
-
-      
     }
-
 }
