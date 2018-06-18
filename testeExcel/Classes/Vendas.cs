@@ -495,7 +495,7 @@ namespace testeCampos
                         cmdCopPedido.Transaction = tr;
                         cmdCopPedido.ExecuteNonQuery();
                         tr.Commit();
-                        MessageBox.Show("Tabela Insumo Produto Copiada ");
+                        MessageBox.Show("Tabela Vendas Copiada ");
                     }
                     catch (Exception ex)
                     {

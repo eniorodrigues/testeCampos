@@ -51,6 +51,8 @@ namespace testeExcel
         public Inventario inventario = new Inventario();
         public InsumoProduto insumoProduto = new InsumoProduto();
         public Vendas vendas = new Vendas();
+        public Compras compras = new Compras();
+        public Relacao relacao = new Relacao();
         public SqlConnection conn = null;
         public bool checado;
 
@@ -116,6 +118,14 @@ namespace testeExcel
             if (comboBox1.SelectedItem.ToString() == "D_Vendas_Itens")
             {
                 vendas.geraVendas(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Compras")
+            {
+                compras.geraCompras(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
+            }
+            if (comboBox1.SelectedItem.ToString() == "D_Relacao_Carga")
+            {
+                relacao.geraRelacao(filesAdionado, MyApp, caminho, directoryPath, comboBox2.SelectedItem.ToString(), excelConnectionString, colunas, colunasCreate, itemsDataGrid, dataGridView1, conn, comboBox2.SelectedIndex);
             }
         }
 
@@ -193,10 +203,10 @@ namespace testeExcel
             SqlConnection conn = new SqlConnection(@"Data Source=BRCAENRODRIGUES\SQLSERVER; Initial Catalog=TEST_TEMP_2017; Integrated Security=True");
 
             string sql = "SELECT c.name as Campo_SQL , '' as Campo_Excel " +
-                        "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id "+
-                        "LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id "+
-                        "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
-                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "') and c.name !='Ins_Id' and c.name !='Vnd_ID'  ";
+                        "FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id " +
+                        //  "LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id "+
+                        //  "LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id "+
+                        "WHERE c.object_id = OBJECT_ID('" + comboBox1.SelectedItem.ToString() + "') and c.name !='Ins_Id' and c.name !='Vnd_ID' and c.name !='Rel_ID' and c.name != 'Cmp_ID' ";
 
             //SqlConnection connection = new SqlConnection(connectionString);
             SqlDataAdapter dataadapter = new SqlDataAdapter(sql, conn);
